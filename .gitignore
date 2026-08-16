@@ -1,0 +1,27 @@
+# secrets / account material
+.env
+*.env
+accounts.jsonl
+exports/
+output/
+captures/
+reports/
+.omx/
+
+# browser/profile/runtime artifacts
+**/node_modules/
+**/__pycache__/
+*.pyc
+*.sqlite
+*.log
+*.png
+*.html
+*.har
+*.zip
+*.7z
+
+# local editor/os
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
