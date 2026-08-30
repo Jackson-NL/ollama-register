@@ -2,17 +2,29 @@
 .env
 *.env
 accounts.jsonl
+accounts_auto.jsonl
+config/*.json
+!config/*.example.json
 exports/
 output/
 captures/
 reports/
 .omx/
+.ollama-register.lock
+
+# new platform directories
+data/
+profiles/
 
 # browser/profile/runtime artifacts
 **/node_modules/
+.playwright-cli/
+camoufox-parts*/
+camoufox-linux-parts*/
 **/__pycache__/
 *.pyc
 *.sqlite
+*.db
 *.log
 *.png
 *.html

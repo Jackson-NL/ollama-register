@@ -2,12 +2,17 @@
   "name": "ollama-register",
   "version": "0.1.0",
   "private": true,
-  "description": "Ollama registration reverse-engineering and semi-automated runner with human CF checkpoint.",
+  "description": "Ollama full-auto registration CLI.",
   "type": "commonjs",
   "scripts": {
-    "register:one": "node scripts/ollama_signup_with_cftempmail.js"
+    "test": "node --test scripts/lib/*.test.js",
+    "mode:full": "node scripts/run_auto_full.js",
+    "auto:signup": "node scripts/auto_signup_full.js",
+    "auto:full": "node scripts/run_auto_full.js",
+    "cli": "node scripts/cli.js"
   },
   "dependencies": {
+    "camoufox": "^0.1.19",
     "playwright": "^1.53.0"
   }
 }
