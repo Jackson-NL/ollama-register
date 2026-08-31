@@ -477,6 +477,91 @@ async function maybeClickTurnstileCheckbox(page) {
   } catch {}
   return false;
 }
+
+// ---- FULL-AUTO 隔离：自动过 CF Turnstile（不碰半自动主流程）----
+const isFullAuto = (process.env.OLLAMA_MODE || '').toLowerCase() === 'full-auto' || process.env.OLLAMA_FULL_AUTO === '1' || (process.env.OLLAMA_AUTO || '').toLowerCase() === 'full';
+async function autoSolveTurnstile(page) {
+  if (!isFullAuto) return { tried: false };
+  if (!isAlive(page)) return { tried: false };
+  // 1) 尝试本地自动点击 Turnstile iframe 中心（Camoufox humanize 辅助）
+  try {
+    const handled = await page.evaluate(() => {
+      const iframes = Array.from(document.querySelectorAll('iframe')).filter(f => /turnstile|challenges\.cloudflare/i.test(f.src || ''));
+      if (!iframes.length) return { found: 0 };
+      // 尝试在主文档触发 Turnstile 回调所需的鼠标事件
+      for (const f of iframes) {
+        try { f.scrollIntoView({ block: 'center' }); } catch {}
+        const r = f.getBoundingClientRect();
+        const x = r.left + r.width / 2, y = r.top + r.height / 2;
+        ['pointerdown','mousedown','mouseup','click'].forEach(t => {
+          try { f.dispatchEvent(new MouseEvent(t, { bubbles: true, clientX: x, clientY: y })); } catch {}
+        });
+      }
+      return { found: iframes.length };
+    }).catch(() => ({ found: 0 }));
+    // 2) 逐 frame 尝试点击 checkbox/容器
+    for (const frame of page.frames()) {
+      try {
+        const url = frame.url() || '';
+        if (!/turnstile|challenges\.cloudflare/i.test(url) && frame !== page.mainFrame()) continue;
+        const candidates = [
+          frame.locator('div#turnstile-wrapper, div.cf-turnstile, iframe').first(),
+          frame.locator('input[type="checkbox"], [role="checkbox"], div[tabindex]').first(),
+          frame.locator('body').first(),
+        ];
+        for (const loc of candidates) {
+          if (await loc.count()) {
+            const box = await loc.boundingBox().catch(() => null);
+            if (box) {
+              await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2).catch(() => {});
+              await page.mouse.click(box.x + box.width / 2, box.y + box.height / 2, { delay: 80 }).catch(() => {});
+            } else {
+              await loc.click({ timeout: 2500, force: true }).catch(() => {});
+            }
+            break;
+          }
+        }
+      } catch {}
+    }
+    // 3) 轮询 token 是否出现
+    for (let i = 0; i < 6; i++) {
+      await sleep(900);
+      const tk = await page.evaluate(() => {
+        const el = document.querySelector('input[name="cf-turnstile-response"], textarea[name="cf-turnstile-response"]');
+        return el ? el.value.length : 0;
+      }).catch(() => 0);
+      if (tk > 0) {
+        log('full-auto turnstile token acquired', { tokenLen: tk, attempts: i + 1 });
+        return { tried: true, tokenLen: tk, found: handled.found || 0 };
+      }
+    }
+    // 4) 可选外部解算（若配置 2captcha/置换服务）
+    const solverKey = process.env.TURNSTILE_SOLVER_KEY || process.env.CAPTCHA_API_KEY || '';
+    const solverUrl = process.env.TURNSTILE_SOLVER_URL || '';
+    if (solverKey && solverUrl) {
+      try {
+        const sitekey = await page.evaluate(() => {
+          const el = document.querySelector('[data-sitekey]');
+          if (el) return el.getAttribute('data-sitekey');
+          const html = document.documentElement.outerHTML;
+          const m = html.match(/sitekey["']?\s*[:=]\s*["']([^"']+)["']/i) || html.match(/turnstile.*sitekey[^0-9a-z]*([0-9A-Za-z_-]{20,})/i);
+          return m ? m[1] : null;
+        }).catch(() => null);
+        const pageUrl = page.url();
+        if (sitekey) {
+          log('full-auto external solver attempt', { sitekey: sitekey.slice(0,8)+'...', pageUrl });
+          // 预留：调用外部 solver 并注入 token（此处仅记录，需按服务商实现）
+          // const token = await callSolver(solverUrl, solverKey, sitekey, pageUrl);
+          // if (token) await page.evaluate(t => { const el=document.querySelector('input[name="cf-turnstile-response"]'); if(el){el.value=t; el.dispatchEvent(new Event('input',{bubbles:true}));}}, token);
+        }
+      } catch {}
+    }
+    return { tried: true, tokenLen: 0, found: handled.found || 0 };
+  } catch (e) {
+    log('full-auto turnstile error', String(e.message || e));
+    return { tried: true, error: String(e.message || e) };
+  }
+}
 function pageLooksLikePassword(meta) { return /password|密码|密碼/i.test(meta.text || '') || (meta.inputs || []).some(i => /password/i.test(i.type || i.name || i.autocomplete || '')); }
 function pageLooksLikeCode(meta) { return /code|验证码|驗證碼|verification|verify your email|check your email/i.test(meta.text || '') || (meta.inputs || []).some(i => /one-time-code|code/i.test(`${i.name} ${i.autocomplete} ${i.placeholder}`)); }
 function pageLooksDone(meta) {
@@ -678,7 +763,16 @@ async function completeOllamaRedirect(page, requests) {
       if (pageLooksDone(m)) { log('looks done'); break; }
 
       if (pageHasHumanCheck(m)) {
-        log('human check visible: complete it manually in the browser window; automation is waiting');
+        if (isFullAuto) {
+          const r = await autoSolveTurnstile(page);
+          log('full-auto human check handling', r);
+          if (r && r.tokenLen > 0) {
+            await clickContinue(page).catch(() => {});
+            await sleep(1200);
+          }
+        } else {
+          log('human check visible: complete it manually in the browser window; automation is waiting');
+        }
       }
       // 邮箱空校验回退：t072 等提交后 1s 被清空为 0 + Please enter your email，立即重填重提（限3次避免死循环）
       if (/Please enter your email/i.test(m.text||'') && (m.inputs||[]).some(i=>i.name==='email' && i.valueLen===0)) {
