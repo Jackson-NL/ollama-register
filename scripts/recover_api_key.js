@@ -79,7 +79,18 @@ async function createApiKeyInPage(page, name){
     const key = await createApiKeyInPage(page, name);
     log('KEY', key ? key.slice(0,12)+'...' : '(none)');
     if(key){
-      fs.appendFileSync(path.join(root,'accounts_auto.jsonl'), JSON.stringify({ts:new Date().toISOString(), provider:'ollama', status:'api_key_recovered', email, api_key:key, api_key_sha256:require('crypto').createHash('sha256').update(key).digest('hex'), keyName:name})+'\n');
+      fs.appendFileSync(path.join(root,'accounts_auto.jsonl'), JSON.stringify({
+        ts:new Date().toISOString(),
+        provider:'ollama',
+        status:'api_key_recovered',
+        engine:'camoufox-semi-recover',
+        email,
+        username: email.split('@')[0],
+        password,
+        api_key:key,
+        api_key_sha256:require('crypto').createHash('sha256').update(key).digest('hex'),
+        keyName:name,
+      })+'\n');
     }
   } finally { if(browser) await browser.close().catch(()=>{}); }
 })().catch(e=>{ fs.writeFileSync(path.join(outDir,'error.txt'), String(e.stack||e)); console.error(e); process.exit(1); });

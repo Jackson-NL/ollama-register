@@ -2,14 +2,18 @@
   "name": "ollama-register",
   "version": "0.1.0",
   "private": true,
-  "description": "Ollama full-auto registration CLI.",
+  "description": "Ollama registration runners: semi-automated checkpoint flow plus full-auto CLI.",
   "type": "commonjs",
   "scripts": {
     "test": "node --test scripts/lib/*.test.js",
     "mode:full": "node scripts/run_auto_full.js",
     "auto:signup": "node scripts/auto_signup_full.js",
     "auto:full": "node scripts/run_auto_full.js",
-    "cli": "node scripts/cli.js"
+    "cli": "node scripts/cli.js",
+    "register:one": "node scripts/ollama_signup_with_cftempmail.js",
+    "semi:auto": "node scripts/ollama_signup_with_cftempmail.js",
+    "semi:batch": "node scripts/run_semi_batch.js --target 300 --concurrency 3",
+    "semi:batch:300": "node scripts/run_semi_batch.js --target 300 --concurrency 3 --domain g2s9nv7kx.mb4.clawchi.cc --max-price 0.022"
   },
   "dependencies": {
     "camoufox": "^0.1.19",

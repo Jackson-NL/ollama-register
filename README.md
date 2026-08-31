@@ -35,6 +35,25 @@ Copy-Item .env.example .env
 # 编辑 .env，填入 SMSBOWER_API_KEY；默认示例为智利 +56，价格上限 0.015
 npm run cli -- --target 1 --country chile --keep-open
 ```
+## 半自动与全自动入口
+
+当前工作区保留两条运行路径：
+
+```powershell
+# 半自动：旧版人工 Cloudflare/Turnstile checkpoint 流程
+npm run register:one
+# 或
+npm run semi:auto
+
+# 全自动：当前 CLI runner / SMSBower / Camoufox 流程
+npm run cli -- --target 1 --country chile --max-price 0.015 --keep-open
+```
+
+旧版半自动 Python 入口也已恢复：
+
+```powershell
+python main.py --email your@mail.com --password yourpass --headful
+```
 
 常用命令：
 
