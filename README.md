@@ -160,6 +160,16 @@ CLASH_ROTATE_EXCLUDE=香港|Hong Kong|HK|🇭🇰
 - 使用前请遵守 Ollama、邮箱、SMSBower、Cloudflare 及代理服务的用户协议和当地法律法规。
 - 本项目仅供学习和研究使用，使用者自行承担运行产生的账号、费用和合规风险。
 
+## Star History
+
+<a href="https://www.star-history.com/#Jackson-NL/ollama-register&Date">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=Jackson-NL/ollama-register&type=Date&theme=dark" />
+    <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=Jackson-NL/ollama-register&type=Date" />
+    <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=Jackson-NL/ollama-register&type=Date" />
+  </picture>
+</a>
+
 ## 配置
 
 复制 `.env.example` 为 `.env` 后填写真实密钥。智利默认配置：
