@@ -2,6 +2,10 @@
 
 本项目是本地 CLI 自动注册运行器：Node.js + Camoufox/Playwright，输出运行证据和账号结果。当前结构只保留 CLI 主线、运行器、辅助库和测试，不包含 React/FastAPI 控制台，也不保留历史抓包探针。
 
+项目地址：[github.com/Jackson-NL/ollama-register](https://github.com/Jackson-NL/ollama-register)
+
+本项目采用 [MIT License](LICENSE) 开源。
+
 ## 项目结构
 
 ```text

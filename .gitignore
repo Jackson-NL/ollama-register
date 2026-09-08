@@ -3,6 +3,8 @@
 *.env
 accounts.jsonl
 accounts_auto.jsonl
+accounts_auto*
+accounts*.jsonl.bak*
 config/*.json
 !config/*.example.json
 exports/

@@ -1,8 +1,17 @@
 {
   "name": "ollama-register",
   "version": "0.1.0",
-  "private": true,
+  "private": false,
   "description": "Ollama registration runners: semi-automated checkpoint flow plus full-auto CLI.",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Jackson-NL/ollama-register.git"
+  },
+  "homepage": "https://github.com/Jackson-NL/ollama-register#readme",
+  "bugs": {
+    "url": "https://github.com/Jackson-NL/ollama-register/issues"
+  },
+  "license": "MIT",
   "type": "commonjs",
   "scripts": {
     "test": "node --test scripts/lib/*.test.js",
