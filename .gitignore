@@ -11,6 +11,7 @@ exports/
 output/
 captures/
 reports/
+docs/
 .omx/
 .ollama-register.lock
 
