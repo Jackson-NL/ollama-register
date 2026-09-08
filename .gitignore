@@ -29,6 +29,7 @@ camoufox-linux-parts*/
 *.db
 *.log
 *.png
+!assets/qq-group.png
 *.html
 *.har
 *.zip

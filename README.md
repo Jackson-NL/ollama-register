@@ -1,10 +1,31 @@
+<p align="center">
+  <img src="assets/qq-group.png" alt="code技术交流群" width="300" />
+</p>
+<p align="center"><strong>code技术交流群 · 群号：1073672527</strong> — QQ 扫码加入群聊</p>
+
+---
+
 # Ollama Register CLI
 
-本项目是本地 CLI 自动注册运行器：Node.js + Camoufox/Playwright，输出运行证据和账号结果。当前结构只保留 CLI 主线、运行器、辅助库和测试，不包含 React/FastAPI 控制台，也不保留历史抓包探针。
+![Node.js](https://img.shields.io/badge/Node.js-18%2B-339933?logo=node.js&logoColor=white)
+![Playwright](https://img.shields.io/badge/Playwright-1.53-2EAD33?logo=playwright&logoColor=white)
+![Camoufox](https://img.shields.io/badge/Camoufox-0.1.19-F76D0D?logo=firefox&logoColor=white)
+![License](https://img.shields.io/github/license/Jackson-NL/ollama-register)
+
+这是一个本地 CLI 自动化工具链，使用 Node.js + Camoufox/Playwright 执行 Ollama 注册流程，支持半自动和全自动运行、SMSBower 接码、Cloudflare checkpoint 处理、代理节点轮换、状态监控和运行证据输出。
 
 项目地址：[github.com/Jackson-NL/ollama-register](https://github.com/Jackson-NL/ollama-register)
 
 本项目采用 [MIT License](LICENSE) 开源。
+
+## 核心特性
+
+- **半自动与全自动流程**：保留人工处理 Cloudflare/Turnstile 的半自动入口，同时提供 CLI 全自动调度器。
+- **批量与重试**：支持目标数量、并发数和单目标尝试次数配置。
+- **SMSBower 接码**：支持国家、区号、服务商和价格上限配置。
+- **代理与节点轮换**：可通过 Camoufox 代理和本机 mihomo/Clash controller 轮换出口节点。
+- **状态与证据**：提供本地健康检查、运行状态、结构化日志和 Playwright 快照输出。
+- **敏感信息保护**：真实 `.env`、账号结果、API key、运行输出和浏览器 profile 默认不会提交。
 
 ## 项目结构
 
@@ -39,6 +60,16 @@ Copy-Item .env.example .env
 # 编辑 .env，填入 SMSBOWER_API_KEY；默认示例为智利 +56，价格上限 0.015
 npm run cli -- --target 1 --country chile --keep-open
 ```
+
+## 环境准备
+
+- Node.js 18+
+- Python 3.10+（仅使用旧版 Python 入口时需要）
+- Camoufox 浏览器依赖
+- SMSBower API key
+- 可选：mihomo/Clash Verge Rev 与代理节点
+
+复制 `.env.example` 为 `.env`，至少填写 `SMSBOWER_API_KEY`。`.env` 只保存在本地，不要上传到公开仓库。
 ## 半自动与全自动入口
 
 当前工作区保留两条运行路径：
@@ -121,6 +152,13 @@ CLASH_ROTATE_EXCLUDE=香港|Hong Kong|HK|🇭🇰
 - 账号结果：`accounts_auto.jsonl`
 
 日志会尽量脱敏；`accounts_auto.jsonl` 按当前实现会保存完整账号材料和 API key，用于本地后续使用。`.env`、`accounts_auto.jsonl`、`output/`、`config/*.json` 等默认被 `.gitignore` 忽略，不要提交。
+
+## 安全与合规
+
+- 账号结果、密码、验证码、API key 和代理配置属于敏感数据，只能保存在本地安全位置。
+- 本项目默认面向本地或受控环境，不建议把状态端口暴露到公网。
+- 使用前请遵守 Ollama、邮箱、SMSBower、Cloudflare 及代理服务的用户协议和当地法律法规。
+- 本项目仅供学习和研究使用，使用者自行承担运行产生的账号、费用和合规风险。
 
 ## 配置
 
